@@ -64,3 +64,9 @@ app.post('/urls/:id', (req, res) => {
   urlDatabase[req.params.id].longURL = req.body.longURL;
   res.redirect(`/urls`);
 });
+
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username);
+  res.redirect('/urls');
+});
