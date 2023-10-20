@@ -41,11 +41,15 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//Get request for new URL's page
 app.get("/urls/new", (req, res) => {
   const user = users[req.cookies.user_id];
   const templateVars = {
     user,
   };
+  if (!user) { // If user is not logged in, redirect to /login
+    res.redirect(`/login`);
+  }
   res.render("urls_new", templateVars);
 });
 
@@ -59,8 +63,16 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+//get request to access a shortened url
 app.get("/u/:id", (req, res) => {
+  const id = req.params.id;
+  const urlId = urlDatabase[id];
   const longURL = urlDatabase[req.params.id];
+
+  if (!urlId) {//Error if URL does not exist
+    return res.status(400).send('This URL ID does not exist'); 
+  }
+
   res.redirect(longURL);
 });
 
@@ -70,11 +82,19 @@ app.get('/register', (req, res) => {
   const templateVars = {
     user,
   };
+  if (user) { // If user is logged in, redirect to /urls
+    res.redirect(`/urls`);
+  }
   res.render('register', templateVars);
 });
 
 //get request for a new login page
 app.get('/login', (req, res) => {
+  const user = users[req.cookies.user_id];
+  if (user) {
+    res.redirect(`/urls`);
+  };
+
   const templateVars = {user: null};
   res.render("login", templateVars);
 });
@@ -86,9 +106,13 @@ app.listen(PORT, () => {
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const id = generateRandomString();
+  const user = users[req.cookies.user_id];
   urlDatabase[id] = {
     longURL,
   };
+  if(!user) {//If user is not logged in, send error message
+    return res.status(400).send('You are not logged in, so you can not shorten URLs'); 
+  }
   res.redirect(`/urls/${id}`);
 });
 
