@@ -1,9 +1,9 @@
 const express = require("express");
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 const app = express();
-app.use(cookieParser())
+app.use(cookieParser());
 const PORT = 8080; // default port 8080
-const { generateRandomString, findUserByEmail } = require("./functions.js")
+const { generateRandomString, findUserByEmail } = require("./functions.js");
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -31,9 +31,10 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+//Pass the url data into our template
 app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id];
-  const templateVars = { 
+  const templateVars = {
     user,
     urls: urlDatabase,
   };
@@ -44,14 +45,14 @@ app.get("/urls/new", (req, res) => {
   const user = users[req.cookies.user_id];
   const templateVars = {
     user,
-  }
+  };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
   const user = users[req.cookies.user_id];
-  const templateVars = { 
-    id: req.params.id, 
+  const templateVars = {
+    id: req.params.id,
     longURL: urlDatabase[req.params.id],
     user,
   };
@@ -66,7 +67,7 @@ app.get("/u/:id", (req, res) => {
 //get request for a new register page
 app.get('/register', (req, res) => {
   const user = users[req.cookies.user_id];
-  const templateVars = { 
+  const templateVars = {
     user,
   };
   res.render('register', templateVars);
@@ -74,8 +75,8 @@ app.get('/register', (req, res) => {
 
 //get request for a new login page
 app.get('/login', (req, res) => {
-  const templateVars = {user: null}
-  res.render("login", templateVars)
+  const templateVars = {user: null};
+  res.render("login", templateVars);
 });
 
 app.listen(PORT, () => {
@@ -83,8 +84,8 @@ app.listen(PORT, () => {
 });
 
 app.post("/urls", (req, res) => {
-  const longURL = req.body.longURL
-  const id = generateRandomString()
+  const longURL = req.body.longURL;
+  const id = generateRandomString();
   urlDatabase[id] = {
     longURL,
   };
@@ -130,7 +131,7 @@ app.post("/register", (req, res) => {
     users[id] = user;
     res.cookie('user_id', id);
     res.redirect('/urls');
-    console.log(users)
+    console.log(users);
   }
 });
 
@@ -138,5 +139,5 @@ app.post("/register", (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect('/login');
-  });
+});
 
