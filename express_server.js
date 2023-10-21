@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 app.use(cookieParser());
 const PORT = 8080; // default port 8080
+const bcrypt = require("bcryptjs");
 const { generateRandomString, findUserByEmail, urlsForUser } = require("./functions.js");
 
 const urlDatabase = {
@@ -160,10 +161,10 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = findUserByEmail(email, users);
-  if (user && user.password === password) { //Sucessful login
+  if (user && bcrypt.compareSync(password, user.password)) { //Successful login
     res.cookie('user_id', user.id);
     res.redirect('/urls');
-  } else { //Unsucessful login
+  } else { //Unsuccessful login
     res.status(403).send('403 error - Invalid email or password');
   }
 });
@@ -173,7 +174,8 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
-  const user = { email, password, id};
+  const hashedPassword = bcrypt.hashSync(password, 10)
+  const user = { email, password: hashedPassword, id};
   if (email.length === 0 || password.length === 0) { //If user and password are zero return error
     return res.status(400).send(`400 error - Missing E-mail or Password`);
   } if (findUserByEmail(email, users)) { //If emailmatch is true then error
