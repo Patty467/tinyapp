@@ -19,4 +19,15 @@ const findUserByEmail = (email, database) => {
   return null;
 };
 
-module.exports = { generateRandomString, findUserByEmail };
+//Filters the urlDatabase for URLs that match the current User's ID
+const urlsForUser = (id, database) => {
+  const userUrls = {};
+  for (const url in database) {
+    if (database[url].userID === id) {
+      userUrls[url] = database[url];
+    }
+  }
+  return userUrls;
+};
+
+module.exports = { generateRandomString, findUserByEmail, urlsForUser};
