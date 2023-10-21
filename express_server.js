@@ -7,7 +7,7 @@ app.use(cookieSession({
 }));
 const PORT = 8080; // default port 8080
 const bcrypt = require("bcryptjs");
-const { generateRandomString, findUserByEmail, urlsForUser } = require("./functions.js");
+const { generateRandomString, urlsForUser, getUserByEmail } = require("./helpers.js");
 
 const urlDatabase = {
   b6UTxQ: {
@@ -163,7 +163,7 @@ app.post('/urls/:id', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const user = findUserByEmail(email, users);
+  const user = getUserByEmail(email, users);
   if (user && bcrypt.compareSync(password, user.password)) { //Successful login
     req.session.user_id = user.id;
     res.redirect('/urls');
@@ -180,7 +180,7 @@ app.post("/register", (req, res) => {
   const hashedPassword = bcrypt.hashSync(password, 10)
   if (email.length === 0 || password.length === 0) { //If user and password are zero return error
     return res.status(400).send(`400 error - Missing E-mail or Password`);
-  } if (findUserByEmail(email, users)) { //If emailmatch is true then error
+  } if (getUserByEmail(email, users)) { //If emailmatch is true then error
     return res.status(400).send(`400 error - A new email is required.`);
   } else {//Sucessful Registration
     const user = { email, password: hashedPassword, id};

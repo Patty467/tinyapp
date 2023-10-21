@@ -10,7 +10,7 @@ const generateRandomString = () => {
 };
 
 //takes in the email and outputs the id attached to the email
-const findUserByEmail = (email, database) => {
+const getUserByEmail = (email, database) => {
   for (const user in database) {
     if (database[user].email === email) {
       return database[user];
@@ -30,4 +30,4 @@ const urlsForUser = (id, database) => {
   return userUrls;
 };
 
-module.exports = { generateRandomString, findUserByEmail, urlsForUser};
+module.exports = { generateRandomString, urlsForUser, getUserByEmail};
