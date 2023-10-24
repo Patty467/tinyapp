@@ -1,5 +1,5 @@
 const express = require("express");
-var cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 const app = express();
 app.use(cookieSession({
   name: 'session',
@@ -39,14 +39,23 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+app.get("/", (req, res) => {
+  const user = users[req.session.user_id];
+  if (user) {
+    res.redirect(`/urls`);
+  } else {
+    res.redirect(`/login`);
+  }
+});
+
 //Pass the url data into our template
 app.get("/urls", (req, res) => {
   const user = users[req.session.user_id];
   const userId = req.session.user_id;
-  userUrls = urlsForUser(userId, urlDatabase);
+  let userUrls = urlsForUser(userId, urlDatabase);
   const templateVars = { user, urls: userUrls, };
   if (!user) { // If user is not logged in, send an error message
-    return res.status(400).send('Please login to access your URLs'); 
+    return res.status(400).send('Please login to access your URLs');
   }
   res.render("urls_index", templateVars);
 });
@@ -68,10 +77,10 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id].longURL,
-    user, 
+    user,
   };
   if (!user) { // If user is not logged in, send an error message
-    return res.status(400).send('Please login to access your URLs'); 
+    return res.status(400).send('Please login to access your URLs');
   } if (userId !== urlUserId) {
     return res.status(400).send('You did not create this URL');
   }
@@ -84,7 +93,7 @@ app.get("/u/:id", (req, res) => {
   const urlId = urlDatabase[id];
   const longUrl = urlDatabase[id]["longURL"];
   if (!urlId) {//Error if URL does not exist
-    return res.status(400).send('This URL ID does not exist'); 
+    return res.status(400).send('This URL ID does not exist');
   }
   res.redirect(`https://${longUrl}`);
 });
@@ -104,7 +113,7 @@ app.get('/login', (req, res) => {
   const user = users[req.session.user_id];
   if (user) {
     res.redirect(`/urls`);
-  };
+  }
   const templateVars = {user};
   res.render("login", templateVars);
 });
@@ -123,8 +132,8 @@ app.post("/urls", (req, res) => {
     longURL,
     userID,
   };
-  if(!user) {//If user is not logged in, send error message
-    return res.status(400).send('You are not logged in, so you can not shorten URLs'); 
+  if (!user) {//If user is not logged in, send error message
+    return res.status(400).send('You are not logged in, so you can not shorten URLs');
   }
   res.redirect(`/urls/${id}`);
 });
@@ -177,7 +186,7 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
-  const hashedPassword = bcrypt.hashSync(password, 10)
+  const hashedPassword = bcrypt.hashSync(password, 10);
   if (email.length === 0 || password.length === 0) { //If user and password are zero return error
     return res.status(400).send(`400 error - Missing E-mail or Password`);
   } if (getUserByEmail(email, users)) { //If emailmatch is true then error
